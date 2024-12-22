@@ -2,123 +2,192 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>SSML Demo avec edge-tts</title>
+    <title>Synthèse Vocale</title>
     <style>
-        /* Simple CSS pour styliser la page */
+        /* CSS intégré */
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
-            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
         }
-        header, footer {
+
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 600px;
+        }
+
+        h1 {
             text-align: center;
-            margin-bottom: 20px;
+            color: #333;
         }
+
         textarea {
             width: 100%;
-            height: 300px;
-            margin-bottom: 10px;
+            height: 100px;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            resize: vertical;
         }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
         label {
-            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
         }
+
+        select, input[type="range"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
         button {
-            background-color: #007BFF;
-            color: white;
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
             border: none;
-            padding: 10px 20px;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 18px;
             cursor: pointer;
+            transition: background-color 0.3s;
         }
+
         button:hover {
             background-color: #0056b3;
         }
+
         audio {
-            display: block;
-            margin-top: 20px;
+            width: 100%;
+            margin-top: 15px;
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Démo SSML avec edge-tts</h1>
-        <p>Testez et modifiez du SSML pour générer de l'audio.</p>
-    </header>
-
-    <main>
-        <!-- Zone de texte pour le SSML -->
-        <label for="ssml-input">Texte SSML :</label>
-        <textarea id="ssml-input">
-<speak>
-    <p>Bienvenue dans cette démonstration complète des balises SSML !</p>
-    <p>
-        Voici un exemple avec une pause de <break time="500ms"/> et un changement de voix :
-        <voice name="en-US-AriaNeural">
-            Hello, I am Aria speaking in English.
-        </voice>
-    </p>
-</speak>
-        </textarea>
-
-        <!-- Sélection de la voix -->
-        <label for="voice-select">Voix par défaut :</label>
-        <select id="voice-select">
-            <option value="fr-FR-DeniseNeural">Français - Denise</option>
-            <option value="en-US-AriaNeural">Anglais - Aria</option>
-        </select>
-
-        <!-- Bouton pour générer l'audio -->
-        <button id="generate-audio">Générer l'audio</button>
-
-        <!-- Section pour afficher les résultats -->
-        <section id="result" style="display:none;">
-            <audio controls id="audio-player"></audio>
-            <a id="download-link" href="#" download="output.mp3">Télécharger l'audio</a>
-        </section>
-    </main>
-
-    <footer>
-        <p>&copy; 2024 Démo SSML avec edge-tts. Tous droits réservés.</p>
-    </footer>
-
+    <div class="container">
+        <h1>Synthèse Vocale</h1>
+        <textarea id="text-input" placeholder="Entrez votre texte ici..."></textarea>
+        <div class="control-group">
+            <label for="voice-select">Voix :</label>
+            <select id="voice-select">
+                <!-- Les options de voix seront ajoutées dynamiquement -->
+            </select>
+        </div>
+        <div class="control-group">
+            <label for="rate-range">Taux de Parole : <span id="rate-value">0%</span></label>
+            <input type="range" id="rate-range" min="-100" max="100" value="0">
+        </div>
+        <div class="control-group">
+            <label for="volume-range">Volume : <span id="volume-value">0%</span></label>
+            <input type="range" id="volume-range" min="-100" max="100" value="0">
+        </div>
+        <div class="control-group">
+            <label for="pitch-range">Hauteur : <span id="pitch-value">0Hz</span></label>
+            <input type="range" id="pitch-range" min="-100" max="100" value="0">
+        </div>
+        <button id="synthesize-btn">Synthétiser</button>
+        <audio id="audio-output" controls></audio>
+    </div>
     <script>
-        document.getElementById('generate-audio').addEventListener('click', async () => {
-            const ssml = document.getElementById('ssml-input').value;
-            const voice = document.getElementById('voice-select').value;
-            const synthesizeSpeech = async (text, voice, rate, volume, pitch) => {
+        // JavaScript intégré
+        document.addEventListener('DOMContentLoaded', () => {
+            const textInput = document.getElementById('text-input');
+            const voiceSelect = document.getElementById('voice-select');
+            const rateRange = document.getElementById('rate-range');
+            const rateValue = document.getElementById('rate-value');
+            const volumeRange = document.getElementById('volume-range');
+            const volumeValue = document.getElementById('volume-value');
+            const pitchRange = document.getElementById('pitch-range');
+            const pitchValue = document.getElementById('pitch-value');
+            const synthesizeBtn = document.getElementById('synthesize-btn');
+            const audioOutput = document.getElementById('audio-output');
 
-    if (response.ok) {
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
-        const audio = new Audio(url);
-        audio.play();
-    } else {
-        console.error('Erreur lors de la synthèse vocale');
-    }
-};
-            try {
-                // Envoi de la requête au backend
-                const response = await fetch('https://ssml-tts-edge.onrender.com/synthesize', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text, voice, rate, volume, pitch })
-                });
+            // Mettre à jour les affichages des valeurs des curseurs
+            rateRange.addEventListener('input', () => {
+                rateValue.textContent = `${rateRange.value}%`;
+            });
 
-                if (!response.ok) throw new Error('Erreur lors de la génération.');
+            volumeRange.addEventListener('input', () => {
+                volumeValue.textContent = `${volumeRange.value}%`;
+            });
 
-                const blob = await response.blob();
-                const audioUrl = URL.createObjectURL(blob);
+            pitchRange.addEventListener('input', () => {
+                pitchValue.textContent = `${pitchRange.value}Hz`;
+            });
 
-                // Mise à jour du lecteur audio et du lien de téléchargement
-                const audioPlayer = document.getElementById('audio-player');
-                const downloadLink = document.getElementById('download-link');
-                audioPlayer.src = audioUrl;
-                downloadLink.href = audioUrl;
+            // Charger les voix disponibles depuis le backend
+            const loadVoices = async () => {
+                try {
+                    const response = await fetch('https://ssml-tts-edge.onrender.com/voices');
+                    const voices = await response.json();
+                    voices.forEach(voice => {
+                        const option = document.createElement('option');
+                        option.value = voice;
+                        option.textContent = voice;
+                        voiceSelect.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error('Erreur lors du chargement des voix :', error);
+                }
+            };
 
-                // Affichage des résultats
-                document.getElementById('result').style.display = 'block';
-            } catch (error) {
-                alert('Une erreur est survenue lors de la génération de l\'audio.');
-            }
+            // Appeler la fonction pour charger les voix
+            loadVoices();
+
+            // Gérer le clic sur le bouton de synthèse
+            synthesizeBtn.addEventListener('click', async () => {
+                const text = textInput.value.trim();
+                const voice = voiceSelect.value;
+                const rate = `${rateRange.value}%`;
+                const volume = `${volumeRange.value}%`;
+                const pitch = `${pitchRange.value}Hz`;
+
+                if (!text) {
+                    alert('Veuillez entrer un texte à synthétiser.');
+                    return;
+                }
+
+                try {
+                    // Envoyer la requête au backend
+                    const response = await fetch('https://ssml-tts-edge.onrender.com/synthesize', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ text, voice, rate, volume, pitch }),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Erreur lors de la synthèse vocale');
+                    }
+
+                    // Récupérer le fichier audio
+                    const audioBlob = await response.blob();
+                    const audioUrl = URL.createObjectURL(audioBlob);
+
+                    // Configurer et jouer l'audio
+                    audioOutput.src = audioUrl;
+                    audioOutput.style.display = 'block';
+                } catch (error) {
+                    console.error('Erreur :', error);
+                    alert('Une erreur est survenue lors de la synthèse vocale. Veuillez réessayer.');
+                }
+            });
         });
     </script>
 </body>
