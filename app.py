@@ -13,9 +13,9 @@ def home():
     return "Bienvenue sur l'API edge-tts !", 200
 
 @app.route('/synthesize', methods=['POST'])
-async def synthesize():
+def synthesize():
     try:
-        # Récupération des données JSON
+        # Récupère les données envoyées par le frontend
         data = request.json
         ssml = data.get('ssml', '')
         voice = data.get('voice', 'en-US-AriaNeural')
@@ -23,14 +23,13 @@ async def synthesize():
         if not ssml:
             return jsonify({'error': 'Le texte SSML est requis.'}), 400
 
-        # Nom du fichier temporaire pour l'audio
+        # Génération de l'audio
         output_file = "output_audio.mp3"
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(edge_tts.Communicate(ssml, voice).save(output_file))
 
-        # Génération de l'audio avec edge-tts
-        tts = edge_tts.Communicate(ssml, voice)
-        await tts.save(output_file)
-
-        # Envoi du fichier audio généré
+        # Envoi du fichier audio
         return send_file(output_file, as_attachment=True)
     except Exception as e:
         print(f"Erreur : {e}")
