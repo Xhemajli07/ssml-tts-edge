@@ -15,25 +15,33 @@ def home():
 @app.route('/synthesize', methods=['POST'])
 def synthesize():
     try:
-        # Récupère les données envoyées par le frontend
         data = request.json
-        ssml = data.get('ssml', '')
+        text = data.get('text', '')
         voice = data.get('voice', 'en-US-AriaNeural')
+        rate = data.get('rate', '0%')  # Par défaut, pas de changement de taux
+        volume = data.get('volume', '0%')  # Par défaut, pas de changement de volume
+        pitch = data.get('pitch', '0Hz')  # Par défaut, pas de changement de hauteur
 
-        if not ssml:
-            return jsonify({'error': 'Le texte SSML est requis.'}), 400
+        if not text:
+            return jsonify({'error': 'Le texte est requis.'}), 400
 
-        # Génération de l'audio
         output_file = "output_audio.mp3"
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        loop.run_until_complete(edge_tts.Communicate(ssml, voice).save(output_file))
+        loop.run_until_complete(
+            edge_tts.Communicate(
+                text,
+                voice=voice,
+                rate=rate,
+                volume=volume,
+                pitch=pitch
+            ).save(output_file)
+        )
 
-        # Envoi du fichier audio
         return send_file(output_file, as_attachment=True)
     except Exception as e:
         print(f"Erreur : {e}")
-        return jsonify({'error': 'Une erreur est survenue lors de la synthèse vocale.'}), 500
+        return jsonify({'error': 'Une erreur est survenue lors de la synthèse vocale.'}),
 
 if __name__ == '__main__':
     # Récupère le port attribué par Render ou utilise 5000 par défaut
