@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Synthèse Vocale</title>
     <style>
-        /* CSS intégré */
+        /* Styles intégrés */
         body {
             font-family: Arial, sans-serif;
             display: flex;
@@ -85,28 +85,28 @@
         <h1>Synthèse Vocale</h1>
         <textarea id="text-input" placeholder="Entrez votre texte ici..."></textarea>
         <div class="control-group">
-            <label for="voice-select">Voix :</label>
+            <label for="voice-select">Voix :</label>
             <select id="voice-select">
-                <!-- Les options de voix seront ajoutées dynamiquement -->
+                <!-- Les voix seront chargées dynamiquement -->
             </select>
         </div>
         <div class="control-group">
-            <label for="rate-range">Taux de Parole : <span id="rate-value">0%</span></label>
+            <label for="rate-range">Taux de Parole : <span id="rate-value">0%</span></label>
             <input type="range" id="rate-range" min="-100" max="100" value="0">
         </div>
         <div class="control-group">
-            <label for="volume-range">Volume : <span id="volume-value">0%</span></label>
+            <label for="volume-range">Volume : <span id="volume-value">0%</span></label>
             <input type="range" id="volume-range" min="-100" max="100" value="0">
         </div>
         <div class="control-group">
-            <label for="pitch-range">Hauteur : <span id="pitch-value">0Hz</span></label>
+            <label for="pitch-range">Hauteur : <span id="pitch-value">0Hz</span></label>
             <input type="range" id="pitch-range" min="-100" max="100" value="0">
         </div>
         <button id="synthesize-btn">Synthétiser</button>
         <audio id="audio-output" controls></audio>
     </div>
     <script>
-        // JavaScript intégré
+        // Script pour gérer l'interface et les interactions
         document.addEventListener('DOMContentLoaded', () => {
             const textInput = document.getElementById('text-input');
             const voiceSelect = document.getElementById('voice-select');
@@ -119,7 +119,7 @@
             const synthesizeBtn = document.getElementById('synthesize-btn');
             const audioOutput = document.getElementById('audio-output');
 
-            // Mettre à jour les affichages des valeurs des curseurs
+            // Mettre à jour les valeurs des curseurs
             rateRange.addEventListener('input', () => {
                 rateValue.textContent = `${rateRange.value}%`;
             });
@@ -132,10 +132,10 @@
                 pitchValue.textContent = `${pitchRange.value}Hz`;
             });
 
-            // Charger les voix disponibles depuis le backend
+            // Charger les voix disponibles
             const loadVoices = async () => {
                 try {
-                    const response = await fetch('https://ssml-tts-edge.onrender.com/voices');
+                    const response = await fetch('https://votre-backend.onrender.com/voices');
                     const voices = await response.json();
                     voices.forEach(voice => {
                         const option = document.createElement('option');
@@ -144,14 +144,13 @@
                         voiceSelect.appendChild(option);
                     });
                 } catch (error) {
-                    console.error('Erreur lors du chargement des voix :', error);
+                    console.error('Erreur lors du chargement des voix :', error);
                 }
             };
 
-            // Appeler la fonction pour charger les voix
             loadVoices();
 
-            // Gérer le clic sur le bouton de synthèse
+            // Synthèse vocale
             synthesizeBtn.addEventListener('click', async () => {
                 const text = textInput.value.trim();
                 const voice = voiceSelect.value;
@@ -165,8 +164,7 @@
                 }
 
                 try {
-                    // Envoyer la requête au backend
-                    const response = await fetch('https://ssml-tts-edge.onrender.com/synthesize', {
+                    const response = await fetch('https://votre-backend.onrender.com/synthesize', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ text, voice, rate, volume, pitch }),
@@ -176,15 +174,13 @@
                         throw new Error('Erreur lors de la synthèse vocale');
                     }
 
-                    // Récupérer le fichier audio
                     const audioBlob = await response.blob();
                     const audioUrl = URL.createObjectURL(audioBlob);
 
-                    // Configurer et jouer l'audio
                     audioOutput.src = audioUrl;
                     audioOutput.style.display = 'block';
                 } catch (error) {
-                    console.error('Erreur :', error);
+                    console.error('Erreur :', error);
                     alert('Une erreur est survenue lors de la synthèse vocale. Veuillez réessayer.');
                 }
             });
