@@ -2,6 +2,9 @@ from flask import Flask, request, jsonify, send_file
 import edge_tts
 import asyncio
 import os
+from flask_cors import CORS
+CORS(app)
+
 
 app = Flask(__name__)
 
