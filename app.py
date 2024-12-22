@@ -3,10 +3,11 @@ import edge_tts
 import asyncio
 import os
 from flask_cors import CORS
-CORS(app)
 
 
 app = Flask(__name__)
+CORS(app)
+
 
 @app.route('/synthesize', methods=['POST'])
 async def synthesize():
