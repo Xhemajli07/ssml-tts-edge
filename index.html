@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>Synthèse Vocale</title>
     <style>
-        /* Styles intégrés */
         body {
             font-family: Arial, sans-serif;
             display: flex;
@@ -86,9 +85,7 @@
         <textarea id="text-input" placeholder="Entrez votre texte ici..."></textarea>
         <div class="control-group">
             <label for="voice-select">Voix :</label>
-            <select id="voice-select">
-                <!-- Les voix seront chargées dynamiquement -->
-            </select>
+            <select id="voice-select"></select>
         </div>
         <div class="control-group">
             <label for="rate-range">Taux de Parole : <span id="rate-value">0%</span></label>
@@ -106,7 +103,6 @@
         <audio id="audio-output" controls></audio>
     </div>
     <script>
-        // Script pour gérer l'interface et les interactions
         document.addEventListener('DOMContentLoaded', () => {
             const textInput = document.getElementById('text-input');
             const voiceSelect = document.getElementById('voice-select');
@@ -119,7 +115,6 @@
             const synthesizeBtn = document.getElementById('synthesize-btn');
             const audioOutput = document.getElementById('audio-output');
 
-            // Mettre à jour les valeurs des curseurs
             rateRange.addEventListener('input', () => {
                 rateValue.textContent = `${rateRange.value}%`;
             });
@@ -132,7 +127,6 @@
                 pitchValue.textContent = `${pitchRange.value}Hz`;
             });
 
-            // Charger les voix disponibles
             const loadVoices = async () => {
                 try {
                     const response = await fetch('https://ssml-tts-edge.onrender.com/voices');
@@ -150,7 +144,6 @@
 
             loadVoices();
 
-            // Synthèse vocale
             synthesizeBtn.addEventListener('click', async () => {
                 const text = textInput.value.trim();
                 const voice = voiceSelect.value;
@@ -158,8 +151,8 @@
                 const volume = `${volumeRange.value}%`;
                 const pitch = `${pitchRange.value}Hz`;
 
-                if (!text) {
-                    alert('Veuillez entrer un texte à synthétiser.');
+                if (!text || !voice) {
+                    alert('Veuillez entrer un texte et sélectionner une voix.');
                     return;
                 }
 
