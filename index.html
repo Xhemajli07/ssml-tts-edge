@@ -84,13 +84,23 @@
         document.getElementById('generate-audio').addEventListener('click', async () => {
             const ssml = document.getElementById('ssml-input').value;
             const voice = document.getElementById('voice-select').value;
+            const synthesizeSpeech = async (text, voice, rate, volume, pitch) => {
 
+    if (response.ok) {
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const audio = new Audio(url);
+        audio.play();
+    } else {
+        console.error('Erreur lors de la synthèse vocale');
+    }
+};
             try {
                 // Envoi de la requête au backend
                 const response = await fetch('https://ssml-tts-edge.onrender.com/synthesize', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ssml, voice })
+                    body: JSON.stringify({ text, voice, rate, volume, pitch })
                 });
 
                 if (!response.ok) throw new Error('Erreur lors de la génération.');
