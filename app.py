@@ -36,9 +36,11 @@ def synthesize():
 
         print(f"Paramètres : text='{text}', voice='{voice}', rate='{rate}', volume='{volume}', pitch='{pitch}'")
 
-        # Validation de l'entrée
+        # Validation des données
         if not text:
             return jsonify({'error': 'Le texte est requis.'}), 400
+        if not rate.endswith('%') or not volume.endswith('%') or not pitch.endswith('Hz'):
+            return jsonify({'error': 'Format incorrect pour rate, volume ou pitch.'}), 400
 
         # Nom du fichier de sortie
         output_file = "/tmp/output_audio.mp3"
@@ -61,13 +63,19 @@ def synthesize():
         print("Synthèse terminée avec succès")
         return send_file(output_file, as_attachment=True)
 
+    except FileNotFoundError as e:
+        print(f"Erreur de fichier : {e}")
+        return jsonify({'error': 'Problème de fichier.'}), 500
+    except ValueError as e:
+        print(f"Erreur de valeur : {e}")
+        return jsonify({'error': 'Valeur incorrecte dans les paramètres.'}), 400
     except Exception as e:
-        print(f"Erreur lors de la synthèse : {e}")
-        return jsonify({'error': str(e)}), 500
+        print(f"Erreur générale : {e}")
+        return jsonify({'error': 'Erreur inconnue.'}), 500
 
 # Lancer l'application Flask
 if __name__ == '__main__':
     # Récupère le port attribué par Render ou utilise 5000 par défaut
     port = int(os.environ.get('PORT', 5000))
     # Exécute Flask sur toutes les interfaces réseau disponibles (0.0.0.0)
-    app.run(host='0.0.0.0', port=port)
+    app.run(debug=True, host='0.0.0.0', port=port)
