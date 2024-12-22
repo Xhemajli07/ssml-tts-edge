@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, send_file
 import edge_tts
 import asyncio
+import os
 
 app = Flask(__name__)
 
@@ -29,4 +30,7 @@ async def synthesize():
         return jsonify({'error': 'Une erreur est survenue lors de la synthèse vocale.'}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Récupère le port attribué par Render ou utilise 5000 par défaut
+    port = int(os.environ.get('PORT', 5000))
+    # Exécute Flask sur toutes les interfaces réseau disponibles (0.0.0.0)
+    app.run(host='0.0.0.0', port=port)
